@@ -15,11 +15,10 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Paths where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
-import System.Glib.UTFString (withUTFString)
-
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun get_current_point as getCurrentPoint { unCairo `Cairo', alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv* } -> `()'#}

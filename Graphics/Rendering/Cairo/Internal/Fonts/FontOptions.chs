@@ -18,6 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Fonts.FontOptions where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun font_options_create  as fontOptionsCreate  { } -> `FontOptions' mkFontOptions*#}

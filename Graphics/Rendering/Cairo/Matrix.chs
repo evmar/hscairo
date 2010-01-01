@@ -14,6 +14,7 @@
 module Graphics.Rendering.Cairo.Matrix (
     Matrix(Matrix)
   , MatrixPtr
+  , withMatrix
   , identity
   , translate
   , scale
@@ -27,6 +28,8 @@ module Graphics.Rendering.Cairo.Matrix (
 
 import Foreign hiding (rotate)
 import Foreign.C
+
+#include <cairo/cairo.h>
 
 -- | Representation of a 2-D affine transformation.
 --
@@ -48,6 +51,10 @@ data Matrix = Matrix { xx :: !Double, yx :: !Double,
   deriving (Show, Eq)
 
 {#pointer *cairo_matrix_t as MatrixPtr -> Matrix#}
+-- This declares it as: type MatrixPtr = Ptr (Matrix)
+
+withMatrix :: Matrix -> (MatrixPtr -> IO a) -> IO a
+withMatrix matrix f = alloca (\p -> poke p matrix >> f p)
 
 instance Storable Matrix where
   sizeOf _ = {#sizeof cairo_matrix_t#}

@@ -14,7 +14,7 @@
 
 -- #hide
 module Graphics.Rendering.Cairo.Types (
-    Matrix(Matrix), MatrixPtr
+    Matrix(Matrix), MatrixPtr, withMatrix
   , Cairo(Cairo), unCairo
   , Surface(Surface), withSurface, mkSurface, manageSurface
   , Pattern(Pattern), unPattern
@@ -52,6 +52,7 @@ module Graphics.Rendering.Cairo.Types (
   , peekFloatConv
   , withFloatConv
 
+  , withUTFString  -- XXX hack
   ) where
 
 {#import Graphics.Rendering.Cairo.Matrix#}
@@ -61,15 +62,15 @@ import Foreign.C
 
 import Control.Monad (liftM)
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 -- not visible
 {#pointer *cairo_t as Cairo newtype#}
-unCairo (Cairo x) = x
+unCairo = id  -- XXX This shouldn't be necessary.
 
 -- | The medium to draw on.
 {#pointer *surface_t as Surface foreign newtype#}
-withSurface (Surface x) = withForeignPtr x
 
 mkSurface :: Ptr Surface -> IO Surface
 mkSurface surfacePtr = do
@@ -89,7 +90,7 @@ foreign import ccall unsafe "&cairo_surface_destroy"
 -- with the target surface using the currently selected 'Operator'.
 --
 {#pointer *pattern_t as Pattern newtype#}
-unPattern (Pattern x) = x
+unPattern = id  -- XXX This shouldn't be necesary.
 
 -- | Cairo status.
 --
@@ -300,8 +301,6 @@ instance Storable FontExtents where
 -- | Specifies how to render text.
 {#pointer *font_options_t as FontOptions foreign newtype#}
 
-withFontOptions (FontOptions fptr) = withForeignPtr fptr
-
 mkFontOptions :: Ptr FontOptions -> IO FontOptions
 mkFontOptions fontOptionsPtr = do
   fontOptionsForeignPtr <- newForeignPtr fontOptionsDestroy fontOptionsPtr
@@ -374,3 +373,6 @@ withFloatConv  = with . cFloatConv
 
 withArrayFloatConv :: (Storable b, RealFloat a, RealFloat b) => [a] -> (Ptr b -> IO b1) -> IO b1
 withArrayFloatConv = withArray . map (cFloatConv)
+
+-- XXX FIXME
+withUTFString = withCString

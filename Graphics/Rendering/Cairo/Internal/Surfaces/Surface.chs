@@ -18,6 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.Surface where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun surface_create_similar       as surfaceCreateSimilar      { withSurface* `Surface', cFromEnum `Content', `Int', `Int' } -> `Surface' mkSurface*#}

@@ -1,0 +1,35 @@
+Name: cairo-standalone
+Version: 0.11
+Cabal-Version: >= 1.2
+License: BSD3
+License-File: COPYRIGHT
+Copyright: (c) 2010 Evan Martin; (c) 2005 Paolo Martini; (c) 2003, 2004 Abraham Egnor; (c) Aetion Technologies LLC 2004
+Author: Paolo Martini
+Maintainer: gtk2hs-devel@lists.sourceforge.net
+Category: Graphics
+Build-Type: Simple
+
+Library
+  Exposed-Modules: Graphics.Rendering.Cairo
+  -- NOTE: The first two Other-Modules must come first so their interface files
+  -- are generated for the others.
+  Other-Modules:
+                 Graphics.Rendering.Cairo.Matrix,
+                 Graphics.Rendering.Cairo.Types,
+                 Graphics.Rendering.Cairo.Internal,
+                 Graphics.Rendering.Cairo.Internal.Drawing.Cairo,
+                 Graphics.Rendering.Cairo.Internal.Drawing.Paths,
+                 Graphics.Rendering.Cairo.Internal.Drawing.Patterns,
+                 Graphics.Rendering.Cairo.Internal.Drawing.Text,
+                 Graphics.Rendering.Cairo.Internal.Drawing.Transformations,
+                 Graphics.Rendering.Cairo.Internal.Fonts.FontOptions,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.Image,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.PDF,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.PNG,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.PS,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.SVG,
+                 Graphics.Rendering.Cairo.Internal.Surfaces.Surface,
+                 Graphics.Rendering.Cairo.Internal.Utilities
+  Build-Depends: base, mtl, array, bytestring
+  Extensions: ForeignFunctionInterface
+  Extra-Libraries: cairo

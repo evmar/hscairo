@@ -18,14 +18,9 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.PDF where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo-pdf.h>
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_PDF_SURFACE
-
 {#fun pdf_surface_create  as pdfSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
-
-#if CAIRO_CHECK_VERSION(1,2,0)
 {#fun pdf_surface_set_size as pdfSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}
-#endif
 
-#endif

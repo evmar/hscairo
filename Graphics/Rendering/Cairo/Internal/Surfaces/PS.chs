@@ -18,14 +18,8 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.PS where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo-ps.h>
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
-
-{#fun ps_surface_create  as psSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
-
-#if CAIRO_CHECK_VERSION(1,2,0)
-{#fun cairo_ps_surface_set_size as psSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}
-#endif
-
-#endif
+{#fun ps_surface_create   as psSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
+{#fun ps_surface_set_size as psSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}

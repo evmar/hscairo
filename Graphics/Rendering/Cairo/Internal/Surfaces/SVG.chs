@@ -18,10 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.SVG where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo-svg.h>
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_SVG_SURFACE
-
 {#fun svg_surface_create  as svgSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
-
-#endif

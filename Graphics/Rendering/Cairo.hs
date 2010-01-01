@@ -4,10 +4,11 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Cairo
--- Copyright   :  (c) Paolo Martini 2005, (c) Abraham Egnor 2004, (c) Aetion Technologies LLC 2004
--- License     :  BSD-style (see cairo/COPYRIGHT)
+-- Copyright   : (c) 2010 Evan Martin; (c) 2005 Paolo Martini;
+--               (c) 2003, 2004 Abraham Egnor; (c) Aetion Technologies LLC 2004
+-- License     :  BSD3
 --
--- Maintainer  :  p.martini@neuralnoise.com
+-- Maintainer  :  martine@danga.com
 -- Stability   :  experimental
 -- Portability :  portable
 --
@@ -170,48 +171,30 @@ module Graphics.Rendering.Cairo (
 
   -- ** Image surfaces
   , withImageSurface
-#if CAIRO_CHECK_VERSION(1,6,0)
   , formatStrideForWidth
-#endif
   , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
-#if CAIRO_CHECK_VERSION(1,2,0)
   , imageSurfaceGetFormat
   , imageSurfaceGetStride
-#if  __GLASGOW_HASKELL__ >= 606
   , imageSurfaceGetData
-#endif
   , SurfaceData
   , imageSurfaceGetPixels
-#endif
 
-#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
   -- ** PNG support
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
-#endif
 
-#ifdef ENABLE_CAIRO_PDF_SURFACE
   -- ** PDF surfaces
   , withPDFSurface
-#if CAIRO_CHECK_VERSION(1,2,0)
   , pdfSurfaceSetSize
-#endif
-#endif
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
   -- ** PS surfaces
   , withPSSurface
-#if CAIRO_CHECK_VERSION(1,2,0)
   , psSurfaceSetSize
-#endif
-#endif
 
-#ifdef ENABLE_CAIRO_SVG_SURFACE
   -- ** SVG surfaces
   , withSVGSurface
-#endif
 
   -- * Utilities
 
@@ -256,20 +239,11 @@ import Control.Exception (bracket)
 import Foreign.Ptr (Ptr, nullPtr, castPtr)
 import Foreign.Storable (Storable(..))
 import Foreign.ForeignPtr ( touchForeignPtr )
-#if __GLASGOW_HASKELL__ >= 606
 import qualified Data.ByteString as BS
-#endif
 import Data.Ix
 -- internal module of GHC
 import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
-#if __GLASGOW_HASKELL__ < 605
-			 HasBounds, bounds
-#else
-			 getBounds
-#endif
-#if __GLASGOW_HASKELL__ >= 608
-			 ,getNumElements
-#endif
+			 getBounds, getNumElements
                        )
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
@@ -1549,7 +1523,6 @@ surfaceSetDeviceOffset ::
   -> m ()
 surfaceSetDeviceOffset a b c = liftIO $ Internal.surfaceSetDeviceOffset a b c
 
-#if CAIRO_CHECK_VERSION(1,6,0)
 -- | This function provides a stride value that will respect all alignment
 --   requirements of the accelerated image-rendering code within cairo.
 --
@@ -1559,7 +1532,6 @@ formatStrideForWidth ::
   -> Int    -- ^ the stride (number of bytes necessary to store one line)
             --   or @-1@ if the format is invalid or the width is too large
 formatStrideForWidth = Internal.formatStrideForWidth
-#endif
 
 -- | Creates an image surface of the specified format and dimensions.
 -- The initial contents of the surface is undefined; you must explicitely
@@ -1611,7 +1583,6 @@ imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 imageSurfaceGetHeight :: MonadIO m => Surface -> m Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
-#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Get the number of bytes from the start of one row to the start of the
 --   next. If the image data contains no padding, then this is equal to
 --   the pixel depth * the width.
@@ -1624,7 +1595,6 @@ imageSurfaceGetStride = liftIO . Internal.imageSurfaceGetStride
 imageSurfaceGetFormat :: MonadIO m => Surface -> m Format
 imageSurfaceGetFormat a = liftIO $ Internal.imageSurfaceGetFormat a
 
-#if __GLASGOW_HASKELL__ >= 606
 -- | Return a ByteString of the image data for a surface. In order to remain
 --   safe the returned ByteString is a copy of the data. This is a little
 --   slower than returning a pointer into the image surface object itself, but
@@ -1634,12 +1604,7 @@ imageSurfaceGetData a = do
   height <- Internal.imageSurfaceGetHeight a
   stride <- Internal.imageSurfaceGetStride a
   ptr <- Internal.imageSurfaceGetData a
-#if __GLASGOW_HASKELL__ < 608
-  BS.copyCStringLen (castPtr ptr, height * stride)
-#else
   BS.packCStringLen (castPtr ptr, height * stride)
-#endif
-#endif
 
 
 -- | Retrieve the internal array of raw image data.
@@ -1717,11 +1682,6 @@ mkSurfaceData pb (ptr :: Ptr e) size =
   SurfaceData pb ptr (0, count) count
   where count = fromIntegral (size `div` sizeOf (undefined :: e))
 
-#if __GLASGOW_HASKELL__ < 605
-instance HasBounds SurfaceData where
-  bounds (SurfaceData pb ptr bd cnt) = bd
-#endif
-
 -- | 'SurfaceData' is a mutable array.
 instance Storable e => MArray SurfaceData e IO where
   newArray (l,u) e = error "Graphics.Rendering.Cairo.newArray: not implemented"
@@ -1735,19 +1695,11 @@ instance Storable e => MArray SurfaceData e IO where
   unsafeWrite (SurfaceData (Surface pb) pixPtr _ _) idx elem = do
       pokeElemOff pixPtr idx elem
       touchForeignPtr pb
-#if __GLASGOW_HASKELL__ >= 605
   {-# INLINE getBounds #-}
   getBounds (SurfaceData _ _ bd _) = return bd
-#endif
-#if __GLASGOW_HASKELL__ >= 608
   {-# INLINE getNumElements #-}
   getNumElements (SurfaceData _ _ _ count) = return count
-#endif
 
-
-#endif
-
-#ifdef ENABLE_CAIRO_PDF_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1767,7 +1719,6 @@ withPDFSurface filename width height f = do
   Internal.surfaceDestroy surface
   return ret
 
-#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Changes the size of a PDF surface for the current (and
 -- subsequent) pages.
 --
@@ -1779,10 +1730,7 @@ withPDFSurface filename width height f = do
 --
 pdfSurfaceSetSize :: MonadIO m => Surface -> Double -> Double -> m ()
 pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
-#endif
-#endif
 
-#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
 -- | Creates a new image surface and initializes the contents to the given PNG
 -- file.
 --
@@ -1806,9 +1754,7 @@ surfaceWriteToPNG surface filename = do
   unless (status == StatusSuccess) $
     fail =<< Internal.statusToString status
   return ()
-#endif
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1830,7 +1776,6 @@ withPSSurface filename width height f =
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
 
-#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Changes the size of a PostScript surface for the current (and
 -- subsequent) pages.
 --
@@ -1842,11 +1787,7 @@ withPSSurface filename width height f =
 --
 psSurfaceSetSize :: MonadIO m => Surface -> Double -> Double -> m ()
 psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
-#endif
-#endif
 
-
-#ifdef ENABLE_CAIRO_SVG_SURFACE
 -- | Creates a SVG surface of the specified size in points
 -- be written to @filename@.
 --
@@ -1864,7 +1805,6 @@ withSVGSurface filename width height f =
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
-#endif
 
 -- | Returns the version of the cairo library encoded in a single integer.
 --
@@ -1877,4 +1817,3 @@ version = Internal.version
 versionString :: String
 versionString = Internal.versionString
 
-foo

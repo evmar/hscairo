@@ -15,16 +15,15 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Text where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
-import System.Glib.UTFString (withUTFString)
-
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun select_font_face as selectFontFace { unCairo `Cairo', `String', cFromEnum `FontSlant', cFromEnum `FontWeight' } -> `()'#}
 {#fun set_font_size    as setFontSize    { unCairo `Cairo', `Double' } -> `()'#}
-{#fun set_font_matrix  as setFontMatrix  { unCairo `Cairo', `Matrix' } -> `()'#}
+{#fun set_font_matrix  as setFontMatrix  { unCairo `Cairo', withMatrix* `Matrix' } -> `()'#}
 {#fun get_font_matrix  as getFontMatrix  { unCairo `Cairo', alloca- `Matrix' peek*} -> `()'#}
 {#fun set_font_options as setFontOptions { unCairo `Cairo',  withFontOptions* `FontOptions' } -> `()'#}
 {#fun show_text        as showText       { unCairo `Cairo', withUTFString* `String' } -> `()'#}

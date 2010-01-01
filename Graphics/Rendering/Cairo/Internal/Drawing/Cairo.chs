@@ -13,13 +13,15 @@
 
 module Graphics.Rendering.Cairo.Internal.Drawing.Cairo where
 
+import Foreign
+import Foreign.C
+
 {#import Graphics.Rendering.Cairo.Types#}
 
-import System.Glib.FFI
-
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
-{#fun create                                 { withSurface* `Surface' } -> `Cairo' Cairo #}
+{#fun create                                 { withSurface* `Surface' } -> `Cairo' id #}
 {#fun reference                              { unCairo `Cairo' } -> `()' #}
 {#fun destroy                                { unCairo `Cairo' } -> `()' #}
 {#fun save                                   { unCairo `Cairo' } -> `()' #}
@@ -30,7 +32,7 @@ import System.Glib.FFI
 {#fun set_source_rgba    as setSourceRGBA    { unCairo `Cairo', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun set_source         as setSource        { unCairo `Cairo', unPattern `Pattern' } -> `()'#}
 {#fun set_source_surface as setSourceSurface { unCairo `Cairo', withSurface* `Surface', `Double', `Double' } -> `()'#}
-{#fun get_source         as getSource        { unCairo `Cairo' } -> `Pattern' Pattern#}
+{#fun get_source         as getSource        { unCairo `Cairo' } -> `Pattern' id #}
 {#fun set_antialias      as setAntialias     { unCairo `Cairo', cFromEnum `Antialias' } -> `()'#}
 {#fun get_antialias      as getAntialias     { unCairo `Cairo' } -> `Antialias' cToEnum#}
 setDash context xs offset = withArrayLen (map (cFloatConv) xs) $ \len ptr ->

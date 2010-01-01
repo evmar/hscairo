@@ -18,6 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Utilities where
 import Foreign
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun status_to_string    as statusToString { cFromEnum `Status' } -> `String'#}

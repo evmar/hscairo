@@ -18,13 +18,14 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Transformations where
 import Foreign hiding (rotate)
 import Foreign.C
 
+#include <cairo/cairo.h>
 {#context lib="cairo" prefix="cairo"#}
 
 {#fun translate          as translate        { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun scale              as scale            { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun rotate             as rotate           { unCairo `Cairo', `Double' } -> `()'#}
-{#fun transform          as transform        { unCairo `Cairo', `Matrix' } -> `()'#}
-{#fun set_matrix         as setMatrix        { unCairo `Cairo', `Matrix' } -> `()'#}
+{#fun transform          as transform        { unCairo `Cairo', withMatrix* `Matrix' } -> `()'#}
+{#fun set_matrix         as setMatrix        { unCairo `Cairo', withMatrix* `Matrix' } -> `()'#}
 {#fun get_matrix         as getMatrix        { unCairo `Cairo', alloca- `Matrix' peek*} -> `()'#}
 {#fun identity_matrix    as identityMatrix   { unCairo `Cairo' } -> `()'#}
 {#fun user_to_device     as userToDevice     { unCairo `Cairo', withFloatConv* `Double' peekFloatConv*, withFloatConv* `Double' peekFloatConv* } -> `()'#}
