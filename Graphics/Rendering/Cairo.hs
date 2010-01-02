@@ -196,6 +196,9 @@ module Graphics.Rendering.Cairo (
   -- ** SVG surfaces
   , withSVGSurface
 
+  -- ** Xlib surfaces
+  , withXlibSurface
+
   -- * Utilities
 
   , liftIO
@@ -245,6 +248,8 @@ import Data.Ix
 import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 			 getBounds, getNumElements
                        )
+import qualified Graphics.X11.Xlib.Types as Xlib
+import qualified Graphics.X11.Types as X
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
@@ -1800,6 +1805,25 @@ withSVGSurface ::
   -> IO a
 withSVGSurface filename width height f =
   bracket (Internal.svgSurfaceCreate filename width height)
+          (\surface -> do status <- Internal.surfaceStatus surface
+                          Internal.surfaceDestroy surface
+                          unless (status == StatusSuccess) $
+                            Internal.statusToString status >>= fail)
+          (\surface -> f surface)
+
+-- | Creates an Xlib surface for the specified Drawable.
+--
+withXlibSurface ::
+     Xlib.Display -- ^ XXX
+  -> X.Drawable   -- ^ XXX
+  -> Xlib.Visual  -- ^ XXX
+  -> Int          -- ^ width
+  -> Int          -- ^ height
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within in this action.
+  -> IO a
+withXlibSurface dpy win visual width height f =
+  bracket (Internal.xlibSurfaceCreate dpy win visual width height)
           (\surface -> do status <- Internal.surfaceStatus surface
                           Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
