@@ -1,4 +1,4 @@
-Name: cairo-standalone
+Name: cairo
 Version: 0.11
 Cabal-Version: >= 1.2
 License: BSD3
@@ -10,13 +10,10 @@ Category: Graphics
 Build-Type: Simple
 
 Library
-  Exposed-Modules: Graphics.Rendering.Cairo
-  -- NOTE: The first two Other-Modules must come first so their interface files
-  -- are generated for the others.
-  Other-Modules:
-                 Graphics.Rendering.Cairo.Matrix,
-                 Graphics.Rendering.Cairo.Types,
-                 Graphics.Rendering.Cairo.Internal,
+  Exposed-Modules: Graphics.Rendering.Cairo,
+                   Graphics.Rendering.Cairo.Matrix
+                   Graphics.Rendering.Cairo.Types
+  Other-Modules: Graphics.Rendering.Cairo.Internal,
                  Graphics.Rendering.Cairo.Internal.Drawing.Cairo,
                  Graphics.Rendering.Cairo.Internal.Drawing.Paths,
                  Graphics.Rendering.Cairo.Internal.Drawing.Patterns,
